@@ -34,7 +34,7 @@ IPERF="iperf3 -c $TARGET -V"
 MESSAGE="Running iperf3 from client to server"
 OUTPUT=bioteam_$WALLPLATE-$TARGET.txt
 
-echo -ne "${RED}${BOLD} ...Running ping test\n${RESET}" && ping -c 10 $TARGET >> $OUTPUT
+echo -ne "${RED}${BOLD} ...Running ping test\n${RESET}" && ping -c 10 -s 8000 -D $TARGET >> $OUTPUT
   
 echo -ne "${RED}${BOLD} ...Running traceroute test\n${RESET}" && traceroute $TARGET &> /dev/null >> $OUTPUT
    
