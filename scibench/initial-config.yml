@@ -1,0 +1,45 @@
+---
+- hosts: localhost
+  vars:
+    brew_bin: "{{ '/opt/homebrew/bin' if ansible_architecture == 'arm64' else '/usr/local/bin' }}"
+    brew_path: "{{ brew_bin }}/brew "
+    local_bin: "{{ lookup('ansible.builtin.env', 'HOME') }}/.local/bin/"
+    zprofile: "{{ lookup('ansible.builtin.env', 'HOME') }}/.zprofile"
+    dependencies:
+      - openjdk@11
+      - homebrew/cask/docker
+
+  tasks:
+
+    - name: create local bin
+      ansible.builtin.file:
+        path: "{{ local_bin }}"
+        state: directory
+        mode: '0755'
+
+    - name: add local bin and brew bin to path
+      ansible.builtin.lineinfile:
+        path: "{{ zprofile }}"
+        search_string: 'export PATH="{{ brew_bin }}:{{ local_bin }}:$PATH"'
+        line: 'export PATH="{{ brew_bin }}:{{ local_bin }}:$PATH"'
+        state: present
+        create: yes
+
+    - name: bootstrap homebrew if needed
+      ansible.builtin.shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      become: yes
+      args:
+        creates: "{{ brew_path }}"
+
+    - name: brew deps
+      community.general.homebrew:
+        name: "{{ dependencies }}"
+        update_homebrew: false
+        upgrade_all: false
+
+    - name: install nextflow
+      ansible.builtin.shell:  curl -s https://get.nextflow.io | bash
+      args:
+        creates: "{{ local_bin }}/nextflow"
+        executable: /bin/bash
+        chdir: "{{ local_bin }}"
