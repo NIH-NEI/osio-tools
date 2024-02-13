@@ -39,11 +39,12 @@ def run_command(command):
     subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 def main():
-    run_command(f'ping -c 60 -s 8000 -D {TARGET} >> {OUTPUT}')
-    run_command(f'traceroute {TARGET} &> /dev/null >> {OUTPUT}')
+    run_command(f'ping -c 30 -s 8000 -D {TARGET} | tee -a {OUTPUT}')
+    run_command(f'ping -c 30 {TARGET} | tee -a {OUTPUT}')
+    run_command(f'traceroute {TARGET} | tee -a {OUTPUT}')
 
     for flag in flags:
-        run_command(f'{IPERF} {flag} >> {OUTPUT}')
+        run_command(f'{IPERF} {flag} | tee -a {OUTPUT}')
 
 if __name__ == '__main__':
     main()
