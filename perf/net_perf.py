@@ -39,7 +39,7 @@ def run_command(command):
     subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 def main():
-    run_command(f'ping -c 10 {TARGET} >> {OUTPUT}')
+    run_command(f'ping -c 60 -s 8000 -D {TARGET} >> {OUTPUT}')
     run_command(f'traceroute {TARGET} &> /dev/null >> {OUTPUT}')
 
     for flag in flags:
