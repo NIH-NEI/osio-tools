@@ -34,10 +34,10 @@ IPERF="iperf3 -c $TARGET -V"
 MESSAGE="Running iperf3 from client to server"
 OUTPUT=bioteam_$WALLPLATE-$TARGET.txt
 
-echo -ne "${RED}${BOLD} ...Running ping test\n${RESET}" && ping -c 60 -s 8000 -D $TARGET | tee $OUTPUT
+echo -ne "${RED}${BOLD} ...Running ping test\n${RESET}" && ping -c 60 -s 8000 -D $TARGET | tee -a $OUTPUT
   
-echo -ne "${RED}${BOLD} ...Running traceroute test\n${RESET}" && traceroute $TARGET &> /dev/null | tee $OUTPUT
+echo -ne "${RED}${BOLD} ...Running traceroute test\n${RESET}" && traceroute $TARGET &> /dev/null | tee -a $OUTPUT
    
 for flag in "${flags[@]}"; do
-	echo -ne "${RED}${BOLD} ...Running iperf3 with $flag\n${RESET}" && $IPERF $flag | tee $OUTPUT
+	echo -ne "${RED}${BOLD} ...Running iperf3 with $flag\n${RESET}" && $IPERF $flag | tee -a $OUTPUT
 done
