@@ -1,35 +1,43 @@
 ---
 - hosts: localhost
   vars:
-    brew_bin: "{{ '/opt/homebrew/bin' if ansible_architecture == 'arm64' else '/usr/local/bin' }}"
-    brew_path: "{{ brew_bin }}/brew "
+    java_version: "11"
+    brew_prefix: "{{ '/opt/homebrew' if ansible_architecture == 'arm64' else '/usr/local' }}"
+    brew_exe: "{{ brew_prefix }}/bin/brew"
     local_bin: "{{ lookup('ansible.builtin.env', 'HOME') }}/.local/bin/"
     zprofile: "{{ lookup('ansible.builtin.env', 'HOME') }}/.zprofile"
+    openjdk: "openjdk@{{java_version}}"
+    java_version_path: "{{ brew_prefix }}/opt/{{ openjdk }}"
+    java_home: "{{ java_version_path }}/bin/" 
+    sys_java_link: "{{ java_version_path }}/libexec/openjdk.jdk"
+    sys_java_link_target: "/Library/Java/JavaVirtualMachines/openjdk-{{ java_version }}.jdk"
     dependencies:
-      - openjdk@11
-      - homebrew/cask/docker
+      - "{{ openjdk }}"
+        #TODO fix docker
+        #- homebrew/cask/docker
 
   tasks:
-
     - name: create local bin
       ansible.builtin.file:
         path: "{{ local_bin }}"
         state: directory
         mode: '0755'
 
-    - name: add local bin and brew bin to path
+    - name: add local bin, java, and brew bin to path
       ansible.builtin.lineinfile:
         path: "{{ zprofile }}"
-        search_string: 'export PATH="{{ brew_bin }}:{{ local_bin }}:$PATH"'
-        line: 'export PATH="{{ brew_bin }}:{{ local_bin }}:$PATH"'
+        search_string: 'export PATH="{{ brew_prefix }}/bin/:{{ java_home }}:{{ local_bin }}:$PATH"'
+        line: 'export PATH="{{ brew_prefix }}/bin/:{{ java_home }}:{{ local_bin }}:$PATH"'
         state: present
         create: yes
 
-    - name: bootstrap homebrew if needed
-      ansible.builtin.shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      become: yes
-      args:
-        creates: "{{ brew_path }}"
+    - name: add java home
+      ansible.builtin.lineinfile:
+        path: "{{ zprofile }}"
+        search_string: 'export JAVA_HOME="{{ java_home }}"'
+        line: 'export JAVA_HOME="{{ java_home }}"'
+        state: present
+        create: yes
 
     - name: brew deps
       community.general.homebrew:
@@ -37,9 +45,26 @@
         update_homebrew: false
         upgrade_all: false
 
+    - name: add jdk includes
+      ansible.builtin.lineinfile:
+        path: "{{ zprofile }}"
+        search_string: 'export CPPFLAGS="-I{{ java_version_path }}/include"'
+        line: 'export CPPFLAGS="-I{{ java_version_path }}/include"'
+        state: present
+        create: yes
+
+    # sudo ln -sfn {{ sys_java_link }} {{ sys_java_link_target }}
+    - name: symlink for openjdk
+      ansible.builtin.file:
+        src: "{{ sys_java_link }}"
+        dest: "{{ sys_java_link_target }}"
+        state: link
+
     - name: install nextflow
-      ansible.builtin.shell:  curl -s https://get.nextflow.io | bash
+      ansible.builtin.shell: curl -s https://get.nextflow.io | bash
       args:
         creates: "{{ local_bin }}/nextflow"
         executable: /bin/bash
         chdir: "{{ local_bin }}"
+      environment:
+        JAVA_HOME: "{{ java_home }}"
