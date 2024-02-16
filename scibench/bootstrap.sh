@@ -1,7 +1,5 @@
-#!/usr/bin/env bash
-# Bootstrap scientific benchmarking environment for MacOS (ARM64)
-# The point of this script is to ensure the system's python3 pip 
-# bin is on the system path, so we can install ansible using 
+#!/usr/bin/env zsh
+sudo -v
 set -e
 
 PY_PATH=$HOME/Library/Python/$(python3 -c "import sys;print(f'{sys.version_info[0]}.{sys.version_info[1]}')")/bin
@@ -21,9 +19,12 @@ else
   export PATH="$TARGET_PATH"
 fi
 
+echo "[INFO] installing homebrew"
+NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 echo "[INFO] installing ansible"
 python3 -m pip install -U pip
 python3 -m pip install ansible
 echo "[INFO] installing ansible galaxy community general collection"
 ansible-galaxy collection install community.general
-ansible-playbook scibench/initial-config.yml --ask-become-pass
+echo "[INFO] running ansible playbook"
+ansible-playbook scibench/initial-config.yml
