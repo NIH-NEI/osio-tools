@@ -8,7 +8,12 @@ It installs the following:
 - Docker
 - nextflow (>=23.10)
 
-Note the script will prompt you for the system password to install homebrew.
+On a fresh or factory reset computer, create the user account, connect to the internet, then run the following to install Mac Developer tools:
+```
+xcode-select --install
+```
+Now, we can run the 'bootstrap' script.
+Note that this script will prompt you for the system password to install homebrew, which we will be using to install all the dependencies.
 
 ```bash
 ./scibench/bootstrap.sh
@@ -16,7 +21,7 @@ Note the script will prompt you for the system password to install homebrew.
 ```
 
 ## Running
-Requires an internet connection to download the nextflow pipelines.
+This step also requires an internet connection to download the nextflow pipelines.
 
 ```
 # run nextflow benchmarks (should take <10min)
