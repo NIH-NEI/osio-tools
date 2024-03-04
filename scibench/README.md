@@ -29,7 +29,7 @@ Note that this script will prompt you for the system password to install homebre
 ```
 
 ## Running Nextflow benchmarks
-_not yet functional/automated_
+Start a new shell to source all the environment variables created by the ansible playbook.
 
 This step also requires an internet connection to download the nextflow pipelines.
 

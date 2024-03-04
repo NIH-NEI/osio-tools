@@ -8,12 +8,14 @@
     zprofile: "{{ lookup('ansible.builtin.env', 'HOME') }}/.zprofile"
     openjdk: "openjdk@{{java_version}}"
     java_version_path: "{{ brew_prefix }}/opt/{{ openjdk }}"
-    java_home: "{{ java_version_path }}/bin/" 
+    java_home: "{{ java_version_path }}/bin/"
+    java_cmd: "{{ java_version_path }}/bin/java"
     sys_java_link: "{{ java_version_path }}/libexec/openjdk.jdk"
     sys_java_link_target: "/Library/Java/JavaVirtualMachines/openjdk-{{ java_version }}.jdk"
     dependencies:
       - "{{ openjdk }}"
       - sysbench
+      - hyperfine
         #- homebrew/cask/docker
 
   tasks:
@@ -36,6 +38,14 @@
         path: "{{ zprofile }}"
         search_string: 'export JAVA_HOME="{{ java_home }}"'
         line: 'export JAVA_HOME="{{ java_home }}"'
+        state: present
+        create: yes
+
+    - name: add java cmd
+      ansible.builtin.lineinfile:
+        path: "{{ zprofile }}"
+        search_string: 'export JAVA_CMD="{{ java_cmd }}"'
+        line: 'export JAVA_CMD="{{ java_cmd }}"'
         state: present
         create: yes
 
@@ -68,4 +78,4 @@
         chdir: "{{ local_bin }}"
       environment:
         JAVA_HOME: "{{ java_home }}"
-        JAVA_CMD: "{{ java_home }}"
+        JAVA_CMD: "{{ java_cmd }}"
