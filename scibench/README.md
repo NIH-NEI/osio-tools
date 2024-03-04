@@ -1,13 +1,13 @@
 # Scientific Benchmarking Configuration and Tests
 ## Docker cask debugging
 Running into some issues with installing docker cask.
-One useful function is to remove the broken links docker leaves behind vi:
-`find <BREW_PREFIX/bin/> -xtype l -delete`
+One useful function is to remove the broken links docker leaves behind via:
+`find <BREW_PREFIX/bin/> -xtype l -delete -print`
 
 This should work (tested on intel mac), but note the user still has to start the docker desktop app before using. It would be great if we could run these tools with podman, that may be worth investigating.
 
 ## Configuration
-The `bootstrap.sh` script will configure a MacOS system for scientific benchmark tests by configuring python, homebrew, installing ansible (via system python) and running the playbook [initial-config.yml](scibench/initial-config.yml)
+The `bootstrap.sh` script will configure a MacOS system for scientific benchmark tests by configuring python, homebrew, installing ansible (via system python) and running the playbook [initial-config.yml](initial-config.yml)
 It installs the following:
 - homebrew
 - Java (OpenJDK 11)

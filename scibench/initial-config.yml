@@ -13,7 +13,8 @@
     sys_java_link_target: "/Library/Java/JavaVirtualMachines/openjdk-{{ java_version }}.jdk"
     dependencies:
       - "{{ openjdk }}"
-      - homebrew/cask/docker
+      - sysbench
+        #- homebrew/cask/docker
 
   tasks:
     - name: create local bin
@@ -67,3 +68,4 @@
         chdir: "{{ local_bin }}"
       environment:
         JAVA_HOME: "{{ java_home }}"
+        JAVA_CMD: "{{ java_home }}"
