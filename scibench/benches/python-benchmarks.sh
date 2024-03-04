@@ -11,4 +11,3 @@ hyperfine 'python3 image-bench.py' --runs 10 --warmup 2 --export-json "${IMRESUL
 echo "[INFO] running scikit learn benchmarks"
 MLRESULTS="${RESULTS}/ml-benchmarks.json"
 hyperfine 'python3 ml-bench.py' --runs 10 --warmup 2 --export-json "${MLRESULTS}"
-

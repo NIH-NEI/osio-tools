@@ -11,7 +11,7 @@ The `bootstrap.sh` script will configure a MacOS system for scientific benchmark
 It installs the following:
 - homebrew
 - Java (OpenJDK 11)
-- Docker (not yet)
+- ~Docker (not yet)~
 - nextflow (>=23.10)
 
 On a fresh or factory reset computer, create the user account, connect to the internet, then run the following to install Mac Developer tools:
@@ -28,15 +28,21 @@ Note that this script will prompt you for the system password to install homebre
 # <enter password>
 ```
 
-## Running Nextflow benchmarks
+Note, you will have to manually install/configure Docker, that is not functioning automatically.
+
+## Running benchmarks
 Start a new shell to source all the environment variables created by the ansible playbook.
 
-This step also requires an internet connection to download the nextflow pipelines.
+This step also requires an internet connection to download the nextflow pipelines and data for other benchmarks.
+
 
 ```
-# run nextflow benchmarks (should take <10min)
-./nextflow/bench.sh
+./runall.sh
 ```
+this is a driver script that will run:
+- nextflow sarek benchmark
+- sysbench benchmarks
+- Scientific python benchmarks for image processing and ML
 
 ## Results
 
