@@ -7,16 +7,15 @@
     local_bin: "{{ lookup('ansible.builtin.env', 'HOME') }}/.local/bin/"
     zprofile: "{{ lookup('ansible.builtin.env', 'HOME') }}/.zprofile"
     openjdk: "openjdk@{{java_version}}"
-    java_version_path: "{{ brew_prefix }}/opt/{{ openjdk }}"
-    java_home: "{{ java_version_path }}/bin/"
-    java_cmd: "{{ java_version_path }}/bin/java"
-    sys_java_link: "{{ java_version_path }}/libexec/openjdk.jdk"
+    java_home: "{{ brew_prefix }}/opt/{{ openjdk }}"
+    java_cmd: "{{ java_home }}/bin/java"
+    sys_java_link: "{{ java_home }}/libexec/openjdk.jdk"
     sys_java_link_target: "/Library/Java/JavaVirtualMachines/openjdk-{{ java_version }}.jdk"
     dependencies:
       - "{{ openjdk }}"
       - sysbench
       - hyperfine
-        #- homebrew/cask/docker
+      - podman
 
   tasks:
     - name: create local bin
@@ -28,8 +27,8 @@
     - name: add local bin, java, and brew bin to path
       ansible.builtin.lineinfile:
         path: "{{ zprofile }}"
-        search_string: 'export PATH="{{ brew_prefix }}/bin/:{{ java_home }}:{{ local_bin }}:$PATH"'
-        line: 'export PATH="{{ brew_prefix }}/bin/:{{ java_home }}:{{ local_bin }}:$PATH"'
+        search_string: 'export PATH="{{ brew_prefix }}/bin/:{{ java_home }}/bin/:{{ local_bin }}:$PATH"'
+        line: 'export PATH="{{ brew_prefix }}/bin/:{{ java_home }}/bin/:{{ local_bin }}:$PATH"'
         state: present
         create: yes
 
@@ -58,8 +57,8 @@
     - name: add jdk includes
       ansible.builtin.lineinfile:
         path: "{{ zprofile }}"
-        search_string: 'export CPPFLAGS="-I{{ java_version_path }}/include"'
-        line: 'export CPPFLAGS="-I{{ java_version_path }}/include"'
+        search_string: 'export CPPFLAGS="-I{{ java_home }}/include"'
+        line: 'export CPPFLAGS="-I{{ java_home }}/include"'
         state: present
         create: yes
 
