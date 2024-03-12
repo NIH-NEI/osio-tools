@@ -16,13 +16,14 @@ xcode-select --install
 ```
 
 Now, we can clone the osio-tools repository and run the 'bootstrap' script.
-Note that this script will prompt you for the system password to install homebrew, which we will be using to install all the dependencies.
+Note that this script will prompt you for the system password to install homebrew, then again for ansible. This should install all the dependencies.
 
 ```bash
 git clone https://github.com/NIH-NEI/osio-tools.git
 cd osio-tools
 ./scibench/bootstrap.sh
 # <enter password>
+# <enter password for ansible>
 ```
 
 Note, you will have to manually install/configure Docker, that is not functioning automatically.
@@ -34,7 +35,7 @@ This step also requires an internet connection to download the nextflow pipeline
 
 
 ```
-./runall.sh
+./scibench/runall.sh
 ```
 this is a driver script that will run:
 - nextflow sarek benchmark
