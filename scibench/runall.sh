@@ -7,7 +7,7 @@ rm -rf venv
 mkdir -p $RESULTS
 CORES=$(sysctl -n hw.ncpu)
 MIN_CORES=8
-if [$MIN_CORES < $CORES]; then
+if [ "$MIN_CORES" -lt "$CORES" ]; then
   CORES=$MIN_CORES
 else
   CORES=$CORES
