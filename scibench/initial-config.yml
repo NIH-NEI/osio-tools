@@ -64,6 +64,7 @@
 
     # sudo ln -sfn {{ sys_java_link }} {{ sys_java_link_target }}
     - name: symlink for openjdk
+      become: yes
       ansible.builtin.file:
         src: "{{ sys_java_link }}"
         dest: "{{ sys_java_link_target }}"
