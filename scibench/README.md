@@ -29,7 +29,7 @@ cd osio-tools
 Note, you will have to manually install/configure Docker, that is not functioning automatically.
 
 ## Running benchmarks
-Start a new shell to source all the environment variables created by the ansible playbook.
+**Start a new shell** to source all the environment variables created by the ansible playbook.
 
 This step also requires an internet connection to download the nextflow pipelines and data for other benchmarks.
 
