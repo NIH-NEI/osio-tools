@@ -6,6 +6,12 @@ rm -rf $RESULTS
 rm -rf venv
 mkdir -p $RESULTS
 CORES=$(sysctl -n hw.ncpu)
+MIN_CORES=8
+if [$MIN_CORES < $CORES]; then
+  CORES=$MIN_CORES
+else
+  CORES=$CORES
+fi
 python3 "$HOME"/osio-tools/scibench/mach_info.py --results "$RESULTS"
 BENCH_PATH="$HOME"/osio-tools/scibench/benches
 
@@ -29,22 +35,20 @@ hyperfine "python3 ${BENCH_PATH}/ml-bench.py"\
 
 echo "[INFO] Python benchmarks done."
 echo "[INFO] Running sysbench benchmarks"
-HALF_CORES=$(($CORES / 2))
 
 # cpu
-hyperfine "sysbench cpu run --threads=${HALF_CORES}" \
+hyperfine "sysbench cpu run --threads=${CORES}" \
   --runs 10 \
   --export-json "${RESULTS}/sysbench-cpu.json"
 
 # mem
-hyperfine "sysbench memory run --threads=${HALF_CORES}" \
+hyperfine "sysbench memory run --threads=${CORES}" \
   --runs 10 \
   --export-json "${RESULTS}/sysbench-mem.json"
 
 # mem
-hyperfine "sysbench mutex run --threads=${HALF_CORES}" \
+hyperfine "sysbench mutex run --threads=${CORES}" \
   --runs 10 \
   --export-json "${RESULTS}/sysbench-mutex.json"
 
 echo "[INFO] Done"
-
