@@ -27,4 +27,4 @@ python3 -m pip install ansible
 echo "[INFO] installing ansible galaxy community general collection"
 ansible-galaxy collection install community.general
 echo "[INFO] running ansible playbook"
-ansible-playbook initial-config.yml
+ansible-playbook $HOME/osio-tools/scibench/initial-config.yml

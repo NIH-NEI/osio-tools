@@ -1,8 +1,4 @@
 # Scientific Benchmarking Configuration and Tests
-## Docker cask debugging
-Running into some issues with installing docker cask.
-One useful function is to remove the broken links docker leaves behind via:
-`find <BREW_PREFIX/bin/> -xtype l -delete -print`
 
 This should work (tested on intel mac), but note the user still has to start the docker desktop app before using. It would be great if we could run these tools with podman, that may be worth investigating.
 
@@ -11,7 +7,6 @@ The `bootstrap.sh` script will configure a MacOS system for scientific benchmark
 It installs the following:
 - homebrew
 - Java (OpenJDK 11)
-- ~Docker (not yet)~
 - nextflow (>=23.10)
 
 On a fresh or factory reset computer, create the user account, connect to the internet, then run the following to install Mac Developer tools:
@@ -20,10 +15,12 @@ On a fresh or factory reset computer, create the user account, connect to the in
 xcode-select --install
 ```
 
-Now, we can run the 'bootstrap' script.
+Now, we can clone the osio-tools repository and run the 'bootstrap' script.
 Note that this script will prompt you for the system password to install homebrew, which we will be using to install all the dependencies.
 
 ```bash
+git clone https://github.com/NIH-NEI/osio-tools.git
+cd osio-tools
 ./scibench/bootstrap.sh
 # <enter password>
 ```
