@@ -35,6 +35,11 @@ def make_sys_string():
     res = {}
     uname = platform.uname()
     date_ = datetime.datetime.now()
+    hn = platform.node()
+    if hn.startswith("NEI"):
+        res["has_nei_image"] = True
+    else:
+        res["has_nei_image"] = False
     res["test_date"] = date_.strftime("%Y-%m-%d")
     res["arch"] = uname.machine
     res["kernal"] = uname.system
