@@ -1,0 +1,12 @@
+#!/bin/bash
+
+remove_stupid_stuff() {
+  cleaning_stuff=$(echo "$1" | sed 's/[^a-zA-Z0-9._-]/_/g')
+  echo "$cleaning_stuff"
+}
+
+file="$1"
+cleaned_filename=$(remove_stupid_stuff "$file")
+mv "$file" "$cleaned_filename"
+
+echo "You're welcome! I removed the stupid characters from your filename! GAWD!: $cleaned_filename"
