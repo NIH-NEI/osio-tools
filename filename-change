@@ -1,12 +1,41 @@
 #!/bin/bash
 
 remove_stupid_stuff() {
-  cleaning_stuff=$(echo "$1" | sed 's/[^a-zA-Z0-9._-]/_/g')
-  echo "$cleaning_stuff"
+  echo "$1" | tr -c '[:alnum:].-' '_'
 }
 
-file="$1"
-cleaned_filename=$(remove_stupid_stuff "$file")
-mv "$file" "$cleaned_filename"
+process_files() {
+  local file
+  local files=("$1"/*)  # List all files and directories in the specified directory
+  for file in "${files[@]}"; do
+    if [[ -f "$file" || -d "$file" ]]; then
+      local filename=$(basename "$file")
+      if [[ "$file" != "$0" && "$filename" != "renamed_files.txt" && "$file" != "./rename_files.sh" ]]; then  # Check if it's not the script file itself or the log file
+        local cleaned_filename=$(remove_stupid_stuff "$filename")
+        local directory=$(dirname "$file")
+        local new_name="$directory/$cleaned_filename"
+        if [[ "$filename" != "$cleaned_filename" ]]; then  # Check if the filename needs to be changed
+          mv "$file" "$new_name"
+          echo "Renamed: $filename -> $cleaned_filename" | tee -a renamed_files.txt
+        fi
+      fi
+    fi
+    if [[ -d "$file" ]]; then
+      local dir_name=$(basename "$file")
+      echo "Entering directory: $dir_name" | tee -a renamed_files.txt
+      process_files "$file"
+    fi
+  done
+}
 
-echo "You're welcome! I removed the stupid characters from your filename! GAWD!: $cleaned_filename"
+# Main
+if [[ -z "$1" ]]; then
+  echo "Usage: $0 DIRECTORY"
+  exit 1
+fi
+
+directory="$1"
+echo "Processing directory: $directory" | tee renamed_files.txt
+process_files "$directory"
+echo "Done!" | tee -a renamed_files.txt
+
