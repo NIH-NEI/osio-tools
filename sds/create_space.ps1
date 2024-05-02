@@ -2,6 +2,14 @@
 #Storage Path
 $storage = "\\neivast.nei.nih.gov\data\"
 
+param(
+    [# Parameter help description
+    [Parameter(Mandatory=$true)]
+    [ValidateSet("create","update")]
+    [string]
+    $action]
+)
+
 Import-Module ActiveDirectory
 # Define the function for user lookup in AD
 # the function returns user object that is then used for ACLs on the directory
@@ -57,19 +65,45 @@ function Lookup-User($iname) {
     }
 }
 
-
-
-
-
-
 #Get folder path
-Write-Host "Enter the folder to create"
+Write-Host "Enter the folder name"
 $space = Read-Host
 
 if ($space -eq "") {
 Write-Host "No folder specified, exiting"
 Exit
 }
+
+switch ($action) {
+    "create" {
+        #create code
+        If(!(test-path $spacepath))
+        {
+            # create folder
+            $folder = New-Item -ItemType Directory -Path  $spacepath
+        }
+        else
+        {
+            Write-Host "Error: $spacepath already exists"
+            Exit
+        }
+
+    }
+    "update" {
+        #update code
+        If(!(test-path $spacepath))
+        {
+            Write-Host "Error: $spacepath does not exist"
+            Exit
+        }
+    }
+
+}
+
+#Permissions Update 
+
+
+
 
 $spacepath=$storage+$space
 
