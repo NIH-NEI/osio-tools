@@ -1,12 +1,17 @@
 
-$storage = "\\neivast.nei.nih.gov\data\osio_admin\test"
-
-
 param(
   [Parameter(Mandatory=$true)]
   [String]$sds_folder
 )
 
+
+$storage = "\\neivast.nei.nih.gov\data"
+
+If(!(test-path $storage\$sds_folder))
+{
+    Write-Host "Error: $storage\$sds_folder does not exist"
+    Exit
+}
 
 $cores = @()
 
@@ -67,12 +72,10 @@ $cores +=
 
 
 
-$corespath=$storage+$sds_folder+"\cores"
+$corespath=$storage+"\"+$sds_folder+"\cores"
 Write-Host "DEBUG: corespath $corespath"
 If(!(test-path $corespath))
 {
-  Write-Host "DEBUG: Creating $corespath"
-
   New-Item -ItemType Directory -Path $corespath
 }
  
@@ -80,23 +83,34 @@ $CACL = Get-Acl -Path $corespath
 
 
 foreach ($core in $cores) {
+  $cpath = $core.Path
   $corepath=$corespath+"\"+$core.Path
-  Write-Host "DEBUG: corepath $corepath"
 
   If(!(test-path $corepath)) {
-    Write-Host "DEBUG: Creating $corepath"
     New-Item -ItemType Directory -Path $corepath
   }
+  If($core.Path.Contains("\")) {
+     $sp = $core.Path -split "\\"
+     $subpath = $corespath+"\"+ $sp[0]
+     $SACL = Get-Acl -Path $subpath
+  }
+
   $ACL = Get-Acl -Path $corepath
-  #$usernames = Get-Variable $core -valueonly
   foreach ($name in $core.User) {
     Write-Host "Permissions for: $name"
     $CoresReadRule = New-Object System.Security.AccessControl.FileSystemAccessRule($name, "ReadAndExecute", "None", "None", "Allow")
     $CoreReadWriteRule = New-Object System.Security.AccessControl.FileSystemAccessRule($name, "Modify", "ContainerInherit, ObjectInherit", "None", "Allow")
     $CACL.AddAccessRule($CoresReadRule) 
     $ACL.AddAccessRule($CoreReadWriteRule)
+    if($SACL) {
+        $SACL.AddAccessRule($CoresReadRule)
+    }
   }
   Set-Acl -Path $corepath -AclObject $ACL
+  if($SACL) {
+    Set-Acl -Path $subpath -AclObject $SACL
+    Remove-Variable SACL
+  }
 }
 
 Set-Acl -Path $corespath -AclObject $CACL
