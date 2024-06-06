@@ -4,7 +4,7 @@ param(
 )
 
 
-$sds = "\\neivast.nei.nih.gov\data"
+$sds = "\\neivast.nei.nih.gov\data\osio_admin\test"
 
 If(!(test-path $storage\$sds_folder))
 {
@@ -31,12 +31,20 @@ foreach ($value in $uniqueValues) {
     $dst = join-path -Path "$sds" -ChildPath "$($value.Group.destination_path[0])"
 
     Write-Host "DEBUG: count: $($value.Count)  source: $($value.Group.source_path[0]) dest: $($value.Group.destination_path[0])"
+    
+    #create folder path if it doesn't exist yet
+    If(!(test-path (Split-Path -Path  "$dst")))
+    {
+        New-Item -Path (Split-Path -Path  "$dst")
+    }
+    
+    
     Write-Host "DEBUG: copy $src $dst"
-    #Copy-Item "$src" "$dst"
+    Copy-Item "$src" "$dst"
     If(!(test-path "$dst"))
     {
-        #Write-Host "Error: $dst does not exist"
-        #Exit
+        Write-Host "Error: $dst does not exist"
+        Exit
     }
 
     # Perform a loop for the number of repetitions
