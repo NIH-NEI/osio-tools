@@ -32,18 +32,23 @@ foreach ($value in $uniqueValues) {
 
     Write-Host "DEBUG: count: $($value.Count)  source: $($value.Group.source_path[0]) dest: $($value.Group.destination_path[0])"
     
+    If(!(test-path "$src"))
+    {
+        Write-Host "Error: Source $src does not exist"
+        Exit
+    }
+
     #create folder path if it doesn't exist yet
     If(!(test-path (Split-Path -Path  "$dst")))
     {
         New-Item -Path (Split-Path -Path  "$dst")
     }
     
-    
     Write-Host "DEBUG: copy $src $dst"
     Copy-Item "$src" "$dst"
     If(!(test-path "$dst"))
     {
-        Write-Host "Error: $dst does not exist"
+        Write-Host "Error: Destination $dst does not exist"
         Exit
     }
 
@@ -51,6 +56,13 @@ foreach ($value in $uniqueValues) {
     for ($i = 1; $i -lt $value.Count; $i++) {
         $srci = $src+"($i)"
         $dsti = $dst+"($i)"
+
+        If(!(test-path "$srci"))
+        {
+            Write-Host "Error: Source $srci does not exist"
+            Exit
+        }
+
         Write-Host "DEBUG: copy $srci $dsti"
         #Copy-Item "$srci" "$dsti"
         If(!(test-path "$dsti"))
