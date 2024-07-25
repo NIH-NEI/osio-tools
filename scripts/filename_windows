@@ -1,7 +1,8 @@
-Get-ChildItem -Recurse | ForEach-Object {
+ Get-ChildItem -Recurse | ForEach-Object {
     $newName = $_.Name -replace '[^a-zA-Z0-9._ -]', '_'
     if ($newName -ne $_.Name) {
         $newPath = Join-Path $_.Directory $newName
-        Move-Item -LiteralPath $_.FullName -Destination $newPath -Verbose
+        Rename-Item -LiteralPath $_.FullName -NewName $newName -Verbose
     }
-} *>&1 | Out-File renamed_files.txt
+} *>&1 | Out-File renamed_files.txt 
+
