@@ -27,24 +27,23 @@ $flags = @(
     "-u -b 0 -P 7"
 )
 
-$IPERF = "iperf3 -c $TARGET -V"
+$IPERF = "iperf3 -c $TARGET -V -p 443"
 $MESSAGE = "Running iperf3 from client to server"
 $OUTPUT = "bioteam_$WALLPLATE-$TARGET.txt"
 
-Write-Host -NoNewline "$RED$BOLD ...Running jumbo frame ping test`n$RESET"
+Write-Host -NoNewline "...Running jumbo frame ping test`n$RESET"
 Write-Host -NoNewline "...Running jumbo frame ping test`n" | Out-File -Append $OUTPUT
 ping -n 30 -l 8000 -4 $TARGET | Tee-Object -Append $OUTPUT
 
-Write-Host -NoNewline "$RED$BOLD ...Running ping test`n$RESET"
+Write-Host -NoNewline "...Running ping test`n$RESET"
 Write-Host -NoNewline "...Running ping test`n" | Out-File -Append $OUTPUT
 ping -n 30 $TARGET | Tee-Object -Append $OUTPUT
 
-Write-Host -NoNewline "$RED$BOLD ...Running traceroute test`n$RESET"
+Write-Host -NoNewline "...Running traceroute test`n$RESET"
 Write-Host -NoNewline "...Running traceroute test`n" | Out-File -Append $OUTPUT
 tracert $TARGET | Tee-Object -Append $OUTPUT
 
 foreach ($flag in $flags) {
-    Write-Host -NoNewline "$RED$BOLD ...Running iperf3 with $flag`n$RESET"
     Write-Host -NoNewline "...Running iperf3 with $flag`n" | Out-File -Append $OUTPUT
     Invoke-Expression "$IPERF $flag" | Tee-Object -Append $OUTPUT
 }
