@@ -1,0 +1,81 @@
+---
+- hosts: localhost
+  vars:
+    java_version: "11"
+    brew_prefix: "{{ '/opt/homebrew' if ansible_architecture == 'arm64' else '/usr/local' }}"
+    brew_exe: "{{ brew_prefix }}/bin/brew"
+    local_bin: "{{ lookup('ansible.builtin.env', 'HOME') }}/.local/bin/"
+    zprofile: "{{ lookup('ansible.builtin.env', 'HOME') }}/.zprofile"
+    openjdk: "openjdk@{{java_version}}"
+    java_home: "{{ brew_prefix }}/opt/{{ openjdk }}"
+    java_cmd: "{{ java_home }}/bin/java"
+    sys_java_link: "{{ java_home }}/libexec/openjdk.jdk"
+    sys_java_link_target: "/Library/Java/JavaVirtualMachines/openjdk-{{ java_version }}.jdk"
+    dependencies:
+      - "{{ openjdk }}"
+      - sysbench
+      - hyperfine
+      - podman
+
+  tasks:
+    - name: create local bin
+      ansible.builtin.file:
+        path: "{{ local_bin }}"
+        state: directory
+        mode: '0755'
+
+    - name: add local bin, java, and brew bin to path
+      ansible.builtin.lineinfile:
+        path: "{{ zprofile }}"
+        search_string: 'export PATH="{{ brew_prefix }}/bin/:{{ java_home }}/bin/:{{ local_bin }}:$PATH"'
+        line: 'export PATH="{{ brew_prefix }}/bin/:{{ java_home }}/bin/:{{ local_bin }}:$PATH"'
+        state: present
+        create: yes
+
+    - name: add java home
+      ansible.builtin.lineinfile:
+        path: "{{ zprofile }}"
+        search_string: 'export JAVA_HOME="{{ java_home }}"'
+        line: 'export JAVA_HOME="{{ java_home }}"'
+        state: present
+        create: yes
+
+    - name: add java cmd
+      ansible.builtin.lineinfile:
+        path: "{{ zprofile }}"
+        search_string: 'export JAVA_CMD="{{ java_cmd }}"'
+        line: 'export JAVA_CMD="{{ java_cmd }}"'
+        state: present
+        create: yes
+
+    - name: brew deps
+      community.general.homebrew:
+        name: "{{ dependencies }}"
+        update_homebrew: false
+        upgrade_all: false
+
+    - name: add jdk includes
+      ansible.builtin.lineinfile:
+        path: "{{ zprofile }}"
+        search_string: 'export CPPFLAGS="-I{{ java_home }}/include"'
+        line: 'export CPPFLAGS="-I{{ java_home }}/include"'
+        state: present
+        create: yes
+
+    # sudo ln -sfn {{ sys_java_link }} {{ sys_java_link_target }}
+    - name: symlink for openjdk
+      become: yes
+      ansible.builtin.file:
+        src: "{{ sys_java_link }}"
+        dest: "{{ sys_java_link_target }}"
+        state: link
+
+    - name: install nextflow
+      ansible.builtin.shell: curl -s https://get.nextflow.io | bash
+      args:
+        creates: "{{ local_bin }}/nextflow"
+        executable: /bin/bash
+        chdir: "{{ local_bin }}"
+      environment:
+        JAVA_HOME: "{{ java_home }}"
+        JAVA_CMD: "{{ java_cmd }}"
