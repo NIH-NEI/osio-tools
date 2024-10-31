@@ -175,7 +175,8 @@ if (-not (Check-Php)) {
 
         # Download the latest PHP package
         $phpZipPath = "$env:TEMP\php-latest.zip"
-        Start-BitsTransfer -Source $downloadUrl -Destination $phpZipPath
+        # Fails due to Tls issue: Start-BitsTransfer -Source $downloadUrl -Destination $phpZipPath
+        Invoke-WebRequest $phpUrl -OutFile $phpZipPath
 
         # Extract PHP to a destination directory
         $phpInstallPath = "C:\php"
