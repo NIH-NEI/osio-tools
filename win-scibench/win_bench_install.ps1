@@ -48,7 +48,7 @@ function Check-Hyperfine {
 
 # Function to check if Git is installed
 function Check-Git {
-    $gitCheck = git --version -ErrorAction SilentlyContinue
+    $gitCheck = Get-Command git -ErrorAction SilentlyContinue
     if ($gitCheck) {
         Write-Host "Git is already installed."
         return $true
@@ -73,7 +73,7 @@ function Check-Php {
 }
 
 # Function to install Python
-{
+function installPython {
     Write-Host "Installing Python..."
     $pythonUrl = "https://www.python.org/ftp/python/3.12.0/python-3.12.0-amd64.exe"
     $pythonInstallerPath = "$env:TEMP\python-installer.exe"
@@ -83,6 +83,7 @@ function Check-Php {
 }
 
  # Install Python
+ installPython
 
 # Copy python.exe to python3.exe in case script is looking for python3
 $pythonInstallPath = "C:\Program Files\Python312"  # Modify this path based on the actual Python installation directory
@@ -162,6 +163,7 @@ if (-not (Check-Php)) {
     Write-Host "Installing PHP..."
 
     # Fetch the HTML content of the PHP Windows downloads page
+    [Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
     $phpDownloadsPage = Invoke-RestMethod -Uri "https://windows.php.net/download/" -Headers @{ "User-Agent" = "PowerShell-Script" }
 
     # Use a regex pattern to match the latest stable Windows installer link (64-bit thread-safe)
