@@ -179,7 +179,7 @@ if (-not (Check-Php)) {
         Invoke-WebRequest $phpUrl -OutFile $phpZipPath
 
         # Extract PHP to a destination directory
-        $phpInstallPath = "C:\php"
+        $phpInstallPath = "C:\PHP"
         New-Item -Path $phpInstallPath -ItemType Directory -Force
         Expand-Archive -Path $phpZipPath -DestinationPath $phpInstallPath -Force
 
