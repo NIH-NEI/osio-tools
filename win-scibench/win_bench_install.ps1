@@ -158,6 +158,20 @@ if (-not (Check-Git)) {
     }
 }
 
+# Function to download and rename Cygwin setup file for Phoronix
+function downloadCygwin {
+    Write-Host "Downloading Cygwin..."
+    $CWUrl = "https://cygwin.com/setup-x86_64.exe"
+    $CWInstallerPath = "$HOME\Downloads\cygwin-setup-x86_64.exe"
+    Start-BitsTransfer -Source $CWUrl -Destination $CWInstallerPath
+    Write-Host "Cygwin downloaded successfully."
+}
+
+ # Download Cygwin
+ downloadCygwin
+
+
+
 # Check and install PHP if not installed
 if (-not (Check-Php)) {
     Write-Host "Installing PHP..."
