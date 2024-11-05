@@ -1,3 +1,62 @@
+# Function to download the latest certificates from NIH and install them
+function Get-NIHCerts {
+    $certDataUrl = 'http://nihdpkicrl.nih.gov/CertData'
+	$Destination = 'C:\Certificates'
+	$Pattern = '*.crt'
+	
+	#Create download directory for certificates.
+	New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+	
+    try {
+		$webResponse = Invoke-WebRequest -Uri $certDataUrl -UseBasicParsing
+	} catch {
+		Write-Error "Failed to connect to $certDataUrl"
+	return
+	}
+	
+	#Filter and download files based on certPattern
+	$files = $webResponse.Links | Where-Object { $_.href -like $Pattern }
+	#List found certificates
+	Write-Host "Certificates found:"
+	foreach ($file in $files) {
+		$fileName = [System.IO.Path]::GetFileName($file.href)
+		Write-Host $fileName
+	}
+
+	foreach ($file in $files) {
+		$fileName = [System.IO.Path]::GetFileName($file.href)
+		$fileUrl = "$certDataUrl/$fileName"
+		$destinationPath = Join-Path -Path $Destination -ChildPath $fileName
+		
+		try {
+			#Download the file
+			Start-BitsTransfer -Source $fileUrl -Destination $destinationPath
+			#Invoke-WebRequest -Uri $fileUrl -Outfile $destinationPath
+			Write-Output "Downloaded: $fileName to $destinationPath"
+		} catch {
+			Write-Error "Failed to download $fileName"
+		}
+
+	# Install the certificate in both Root and CA stores for Current User and Local Machine
+        try {
+            # Install to Current User Root and CA stores
+            Import-Certificate -FilePath $destinationPath -CertStoreLocation Cert:\CurrentUser\Root
+            Write-Output "Installed $fileName to Current User Root store"
+            
+            Import-Certificate -FilePath $destinationPath -CertStoreLocation Cert:\CurrentUser\CA
+            Write-Output "Installed $fileName to Current User CA store"
+
+            # Install to Local Machine Root and CA stores (requires admin privileges)
+            Import-Certificate -FilePath $destinationPath -CertStoreLocation Cert:\LocalMachine\Root
+            Write-Output "Installed $fileName to Local Machine Root store"
+            
+            Import-Certificate -FilePath $destinationPath -CertStoreLocation Cert:\LocalMachine\CA
+            Write-Output "Installed $fileName to Local Machine CA store"
+        } catch {
+            Write-Error "Failed to install $fileName"
+        }
+	}
+}
 
 # Function to get the latest release download URL from GitHub using Invoke-RestMethod
 function Get-LatestReleaseUrl {
@@ -72,6 +131,15 @@ function Check-Php {
     }
 }
 
+# Function to download and rename Cygwin setup file for Phoronix
+function downloadCygwin {
+    Write-Host "Downloading Cygwin..."
+    $CWUrl = "https://cygwin.com/setup-x86_64.exe"
+    $CWInstallerPath = "$HOME\Downloads\cygwin-setup-x86_64.exe"
+    Start-BitsTransfer -Source $CWUrl -Destination $CWInstallerPath
+    Write-Host "Cygwin downloaded successfully."
+}
+
 # Function to install Python
 function installPython {
     Write-Host "Installing Python..."
@@ -82,6 +150,12 @@ function installPython {
     Write-Host "Python installed successfully."
 }
 
+# Download NIH certificates
+ Get-NIHCerts
+
+# Download Cygwin
+ downloadCygwin
+ 
  # Install Python
  installPython
 
@@ -157,20 +231,6 @@ if (-not (Check-Git)) {
         Write-Host "Git installed successfully."
     }
 }
-
-# Function to download and rename Cygwin setup file for Phoronix
-function downloadCygwin {
-    Write-Host "Downloading Cygwin..."
-    $CWUrl = "https://cygwin.com/setup-x86_64.exe"
-    $CWInstallerPath = "$HOME\Downloads\cygwin-setup-x86_64.exe"
-    Start-BitsTransfer -Source $CWUrl -Destination $CWInstallerPath
-    Write-Host "Cygwin downloaded successfully."
-}
-
- # Download Cygwin
- downloadCygwin
-
-
 
 # Check and install PHP if not installed
 if (-not (Check-Php)) {
