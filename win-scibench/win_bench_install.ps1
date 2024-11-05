@@ -147,6 +147,20 @@ function installPython {
     $pythonInstallerPath = "$env:TEMP\python-installer.exe"
     Start-BitsTransfer -Source $pythonUrl -Destination $pythonInstallerPath
     Start-Process $pythonInstallerPath -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait
+	# Copy python.exe to python3.exe in case script is looking for python3
+		$pythonInstallPath = "C:\Program Files\Python312"  # Modify this path based on the actual Python installation directory
+		$pythonScriptPath = "C:\Program Files\Python312\Scripts"
+		$pythonExePath = Join-Path -Path $pythonInstallPath -ChildPath "python.exe"
+		$python3ExePath = Join-Path -Path $pythonInstallPath -ChildPath "python3.exe"
+		if (Test-Path $pythonExePath) {
+			Copy-Item -Path $pythonExePath -Destination $python3ExePath
+			Write-Host "Created a copy of python.exe as python3.exe"
+		} else {
+			Write-Host "Error: python.exe not found in $pythonInstallPath"
+		}
+	# Add Python to system PATH and move to top of list
+	[System.Environment]::SetEnvironmentVariable("Path", "$pythonInstallPath;$([System.Environment]::GetEnvironmentVariable('Path', 'Machine'))", "Machine")
+	[System.Environment]::SetEnvironmentVariable("Path", "$pythonScriptPath;$([System.Environment]::GetEnvironmentVariable('Path', 'Machine'))", "Machine")
     Write-Host "Python installed successfully."
 }
 
@@ -158,19 +172,6 @@ function installPython {
  
  # Install Python
  installPython
-
-# Copy python.exe to python3.exe in case script is looking for python3
-$pythonInstallPath = "C:\Program Files\Python312"  # Modify this path based on the actual Python installation directory
-$pythonExePath = Join-Path -Path $pythonInstallPath -ChildPath "python.exe"
-$python3ExePath = Join-Path -Path $pythonInstallPath -ChildPath "python3.exe"
-
-if (Test-Path $pythonExePath) {
-    Copy-Item -Path $pythonExePath -Destination $python3ExePath
-    Write-Host "Created a copy of python.exe as python3.exe"
-} else {
-    Write-Host "Error: python.exe not found in $pythonInstallPath"
-}
-
 
 # Check and install Hyperfine if not installed
 if (-not (Check-Hyperfine)) {
