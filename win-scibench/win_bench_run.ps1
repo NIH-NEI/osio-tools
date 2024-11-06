@@ -57,3 +57,5 @@ Write-Host "Copying PDF result to Benchmark results folder..."
 New-Item -Path "$benchmarkFolder\results\PTS-results" -ItemType Directory -Force
 Copy-Item -Path "$env:HOMEPATH\$testResultName.pdf" -Destination "$benchmarkFolder\results\PTS-results" -Force
 Write-Host "PDF result copied successfully."
+
+Write-Host "Benchmarking complete. Please check results before copying to SDS."
