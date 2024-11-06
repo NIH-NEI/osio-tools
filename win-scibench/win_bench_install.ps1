@@ -230,6 +230,11 @@ if (-not (Check-Git)) {
         # Install Git silently
         Start-Process -FilePath $gitInstallerPath -ArgumentList '/silent' -Wait
         Write-Host "Git installed successfully."
+	
+	# Add Git to the system PATH
+	$gitPath = "C:\Program Files\Git\bin" # Replace if install path changes
+        $env:Path += ";$gitPath"
+        [Environment]::SetEnvironmentVariable("Path", $env:Path, [EnvironmentVariableTarget]::Machine)
     }
 }
 
@@ -269,3 +274,4 @@ if (-not (Check-Php)) {
         Write-Host "Unable to find the latest PHP version download link."
     }
 }
+Write-Host "Installation complete. Please close window to allow environmental variables to take effect before running win_bench_run.ps1."
