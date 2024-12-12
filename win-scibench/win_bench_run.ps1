@@ -32,6 +32,12 @@ cd "$benchmarkFolder\osio-tools\win-scibench\benches"
 Start-Process "python-benchmarks.bat" -Wait
 Write-Host "Python benchmarks completed."
 
+# Run sysbench-bench.bat
+Write-Host "Running Sysbench benchmarks..."
+cd "$benchmarkFolder\osio-tools\win-scibench\benches"
+Start-Process "sysbench-bench.bat" -Wait
+Write-Host "Sysbench benchmarks completed."
+
 # Copy the results folder to C:\Benchmark
 Write-Host "Copying results folder to Benchmark directory..."
 New-Item -Path "$benchmarkFolder\results" -ItemType Directory -Force
