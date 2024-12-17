@@ -12,15 +12,18 @@ mkdir -p $OUTDIR
 # cpu
 hyperfine "sysbench cpu run --threads=${HALF_CORES}" \
   --runs 10 \
+  --warmup 2 \
   --export-json "${OUTDIR}/sysbench-cpu.json"
 
 # mem
 hyperfine "sysbench memory run --threads=${HALF_CORES}" \
   --runs 10 \
+  --warmup 2 \
   --export-json "${OUTDIR}/sysbench-mem.json"
 
 # mem
 hyperfine "sysbench mutex run --threads=${HALF_CORES}" \
   --runs 10 \
+  --warmup 2 \
   --export-json "${OUTDIR}/sysbench-mem.json"
 
