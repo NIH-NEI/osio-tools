@@ -1,3 +1,7 @@
+# Removing SSL verification (use with caution)
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 import matplotlib.pyplot as plt
 
 from sklearn.datasets import fetch_20newsgroups
