@@ -27,7 +27,7 @@ $flags = @(
     "-u -b 0 -P 7"
 )
 
-$IPERF = "iperf3 -c $TARGET -V -p 443"
+$IPERF = "iperf3 -c $TARGET -V"
 $MESSAGE = "Running iperf3 from client to server"
 $OUTPUT = "bioteam_$WALLPLATE-$TARGET.txt"
 
