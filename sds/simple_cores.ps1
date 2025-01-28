@@ -30,7 +30,7 @@ $cores +=
 $cores +=
 [PSCustomObject]@{
   Path = 'biological_imaging_core\histology'
-  User = @("camposm","neisvcinsthist")
+  User = @("lijinb","camposm","neisvcinsthist")
 }
 
 $cores +=
