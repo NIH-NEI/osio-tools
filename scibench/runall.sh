@@ -39,16 +39,19 @@ echo "[INFO] Running sysbench benchmarks"
 # cpu
 hyperfine "sysbench cpu run --threads=${CORES}" \
   --runs 10 \
+  --warmup 2 \
   --export-json "${RESULTS}/sysbench-cpu.json"
 
 # mem
 hyperfine "sysbench memory run --threads=${CORES}" \
   --runs 10 \
+  --warmup 2 \
   --export-json "${RESULTS}/sysbench-mem.json"
 
 # mem
 hyperfine "sysbench mutex run --threads=${CORES}" \
   --runs 10 \
+  --warmup 2 \
   --export-json "${RESULTS}/sysbench-mutex.json"
 
 echo "[INFO] Done"
