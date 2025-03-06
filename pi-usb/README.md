@@ -110,13 +110,13 @@ RemainAfterExit=true
 [Install]
 WantedBy=multi-user.target
 ```
-The fields in this file act as follows:\
-Description: A brief description of the service.\
-After=network.target: Ensures the service runs after the network stack is initialized (useful for some configurations).\
-ExecStart: Specifies the command to run your script.\
-Type=oneshot: Runs the script once and exits.\
-RemainAfterExit=true: Keeps the service active to ensure the USB gadget configuration persists.\
-WantedBy=multi-user.target: Ensures the service starts in the standard multi-user boot mode.\
+The fields in this file act as follows:
+ - Description: A brief description of the service.
+ - After=network.target: Ensures the service runs after the network stack is initialized (useful for some configurations).
+ - ExecStart: Specifies the command to run your script.
+ - Type=oneshot: Runs the script once and exits.
+ - RemainAfterExit=true: Keeps the service active to ensure the USB gadget configuration persists.
+ - WantedBy=multi-user.target: Ensures the service starts in the standard multi-user boot mode.
 \
 Use the following command to reload systemd to register the service:
 ```
@@ -139,62 +139,59 @@ Create a credentials file for the upload (repeat this step if password or userna
 ```
 sudo nano /etc/smbcredentials
 ```
-Add:
+Add the credentails of the service account you will use to connect to the desired SDS location:
 ```
-username=your_username
-password=your_password
+username="service_account_username"
+password="service_account_password"
 ```
 Secure the file:
 ```
 sudo chmod 600 /etc/smbcredentials
 ```
-
-
-
+Install the necessary tools:
+```
+sudo apt update
+sudo apt install cifs-utils
+```
+Now, create the upload script file:
+```
+sudo nano /usr/bin/upload_data.sh
+```
+Copy and paste the contents of the upload_data.sh script in this directory on GitHub making sure to adjust the variable "SMB_SHARE" to match the SDS destination desired.\
+Make it executable with the command:
+```
+sudo chmod +x /usr/bin/upload_data.sh
+```
+In the current state, this script will:
+ - Create a timestamped folder in the destination folder (specified by SMB_SHARE variable).
+ - Upload the contents of the virtual USB drive to the timestamped folder, excluding "System Volume Information" folder.
+ - (Optional, currently commented out) Perform secondary file integrity verification (rsync already performs integrity check).
+ - Deletes files from USB image as integrity of copy is confirmed.
+ - Uploads a compressed .tar.gz file of the log to the same folder.
+ - Clears log file (can be commented out if desired but will continue to grow).
+ - Unbind and rebind USB gadget to cleare cached files in Windows (otherwise will deleted files will remain and be uploaded again next time).
 ## Schedule Upload with Cron
-
-
-
-The `bootstrap.sh` script will configure a MacOS system for scientific benchmark tests by configuring python, homebrew, installing ansible (via system python) and running the playbook [initial-config.yml](initial-config.yml)
-It installs the following:
-- homebrew
-- Java (OpenJDK 11)
-- nextflow (>=23.10)
-
-On a fresh or factory reset computer, create the user account, connect to the internet, then run the following to install Mac Developer tools:
-
+Open the crontab editor:
 ```
-xcode-select --install
+sudo crontab -e
 ```
-
-Now, we can clone the osio-tools repository and run the 'bootstrap' script.
-Note that this script will prompt you for the system password to install homebrew, then again for ansible. This should install all the dependencies.
-
-```bash
-git clone https://github.com/NIH-NEI/osio-tools.git
-cd osio-tools
-./scibench/bootstrap.sh
-# <enter password>
-# <enter password for ansible>
+Add the following line to run the upload script daily at 2 AM (adjust the time as needed):
 ```
-
-Note, you will have to manually install/configure Docker, that is not functioning automatically.
-
-## Running benchmarks
-**Start a new shell** to source all the environment variables created by the ansible playbook.
-
-This step also requires an internet connection to download the nextflow pipelines and data for other benchmarks.
-
-
+0 2 * * * /usr/bin/upload_data.sh
 ```
-./scibench/runall.sh
+## Test the Setup
+Reboot the Raspberry Pi and check if it appears as a USB drive when connected to a computer.\
+Run the upload script manually with the following command:
 ```
-this is a driver script that will run:
-- nextflow sarek benchmark
-- sysbench benchmarks
-- Scientific python benchmarks for image processing and ML
+sudo /usr/bin/upload_data.sh
+```
+Verify that the cron job runs as expected and uploads the data and log to the network location in correctly timestamped folders.
 
-## Results
-
-TODO(nick) Results will be:
-
+Check error logs for USB errors with command:
+```
+“dmesg | grep usb”
+```
+You can also check the upload log with the command:
+```
+cat /var/log/upload_data.log
+```
