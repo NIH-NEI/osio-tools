@@ -1,6 +1,6 @@
 # Raspberry Pi Virtual USB and SDS Upload Tool
 
-This folder contains the scripts and instructions required to prepare a Raspberry Pi 5 to act as a virtual USB drive to the system it is connected to while also uploading (and clearing) its contents once per day.
+This folder contains the scripts and instructions required to prepare a Raspberry Pi 5 to act as a virtual USB drive to the system it is connected to while also uploading its contents (along with a compressed log file), once per day.
 
 ## Preparation
 For this device, you will need a Raspberry Pi 5 and, preferrably, a PoE+ HAT and case along with an appropriate USB-C cable.\
